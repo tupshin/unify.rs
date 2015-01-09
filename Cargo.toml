@@ -1,0 +1,11 @@
+[package]
+
+name = "unify"
+version = "0.0.0"
+authors = ["Darin Morrison <darinmorrison+rust@gmail.com>"]
+description = "Trait-based equality constraint for Rust"
+documentation = "http://darinmorrison.github.io/unify.rs/doc/unify/"
+keywords = ["equality", "type-level", "unification"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/darinmorrison/unify.rs"

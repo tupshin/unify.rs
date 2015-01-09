@@ -67,14 +67,6 @@ impl<A> Eq<A> for A {
 pub trait BiEq<A: Eq<B>, B: Eq<A>> {}
 impl<A: Eq<B>, B: Eq<A>, C> BiEq<A, B> for C {}
 
-pub trait T {
-    // The `Self: Is<X>` bound on `m1` isn't strictly necessary but
-    // allows `X` to be omitted/inferred from an outer annotation: see
-    // the annotations section in `main`.
-    fn m1<This>() -> (Self, &'static str) where (): BiEq<This, Self>;
-    fn m2(&self) -> &'static str;
-}
-
 #[cfg(test)]
 mod tests {
     use super::{

@@ -4,6 +4,12 @@ Trait-based equality constraint for Rust
 
 [![build status](https://api.travis-ci.org/darinmorrison/unify.rs.svg?branch=master)](https://travis-ci.org/darinmorrison/unify.rs)
 
+## Synopsis
+
+This crate provides a trait-based implementation of equality constraints. It is intended as a stopgap until proper equality predicates are implemented as described in the `where`-clause [RFC](https://github.com/nikomatsakis/rfcs/blob/where-clauses/active/0000-where.md).
+
+Because it is a hack, there are some limitations with how it can be used. It is most effective as a helper for encoding additional trait invariants in order to rule out invalid implementations. Previously it was useful as a means to specify `Self` for static method invocation but this is no longer needed with [UFCS](https://github.com/rust-lang/rust/pull/21077). 
+
 ## Documentation
 
 See the API documentation [here](http://darinmorrison.github.io/unify.rs/doc/unify/).

@@ -12,7 +12,7 @@ impl<P: ?Sized> Squash<P> {
 /// Canonical proof term for type equality
 struct Refl<A>;
 
-/// The `Term` trait classifies proof terms for type quality
+/// The `Term` trait classifies proof terms for type equality
 trait IdTerm<A, B> {}
 impl<A> IdTerm<A, A> for Refl<A> {}
 

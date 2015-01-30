@@ -1,6 +1,6 @@
 # unify.rs
 
-Trait-based equality constraint for Rust
+Trait-based type-level equality constraint for Rust
 
 [![build status](https://api.travis-ci.org/darinmorrison/unify.rs.svg?branch=master)](https://travis-ci.org/darinmorrison/unify.rs)
 

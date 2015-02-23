@@ -11,7 +11,7 @@ pub struct Squash<P: ?Sized> {
 impl<P: ?Sized> Squash<P> {
     /// Construct a `Squash` given a reference to a witness
     #[inline]
-    pub fn new(_: &P) -> Squash<P> {
+    pub fn new<'a>(_: &'a P) -> Squash<P> {
         Squash {
             phan: PhantomData,
         }
@@ -37,20 +37,20 @@ impl<A> IdTerm<A, A> for Refl<A> {
 }
 
 /// Evidence of type equality where the proof term is existentially quantified
-pub struct Id<A, B>(Box<IdTerm<A, B> + 'static>);
+pub struct Id<'a, A, B>(Box<IdTerm<A, B> + 'a>);
 
-impl<A: 'static> Id<A, A> {
+impl<'a, A: 'a> Id<'a, A, A> {
     /// Construct a proof that type `A` is equal to itself
     #[inline]
-    pub fn refl() -> Id<A, A> {
+    pub fn refl() -> Id<'a, A, A> {
         Id(Box::new(Refl::new()))
     }
 }
 
-impl<A, B> Id<A, B> {
+impl<'a, A, B> Id<'a, A, B> {
     /// Construct a `Squash` from a type equality proof.
     #[inline]
-    pub fn squash(&self) -> Squash<Id<A, B>> {
+    pub fn squash(&self) -> Squash<Id<'a, A, B>> {
         Squash::new(self)
     }
 }
@@ -70,7 +70,7 @@ pub trait Eq<A> {
     /// Implication in the reverse direction would be something like
     /// soundness but that isn't very useful here.
     #[inline]
-    fn completeness(&self) -> Squash<Id<Self, A>>;
+    fn completeness<'a>(&self) -> Squash<Id<'a, Self, A>> where A: 'a;
 
     /// Given `X: Eq<Y>` and `x: X`, this method will safely coerce
     /// `x` to type `Y`. The safety comes from the fact that the only
@@ -82,9 +82,9 @@ pub trait Eq<A> {
     }
 }
 
-impl<A: 'static> Eq<A> for A {
+impl<A> Eq<A> for A {
     #[inline]
-    fn completeness(&self) -> Squash<Id<A, A>> {
+    fn completeness<'a>(&self) -> Squash<Id<'a, A, A>> where A: 'a {
         Id::refl().squash()
     }
 }

@@ -1,34 +1,58 @@
-#![allow(unstable)]
+use std::marker::{
+    PhantomData,
+    PhantomFn,
+};
 
 /// Evidence of a proposition where the witness has been forgotten
-pub struct Squash<P: ?Sized>(());
+pub struct Squash<P: ?Sized> {
+    phan: PhantomData<P>,
+}
 
 impl<P: ?Sized> Squash<P> {
     /// Construct a `Squash` given a reference to a witness
     #[inline]
-    pub fn new(_witness: &P) -> Squash<P> { Squash(()) }
+    pub fn new(_: &P) -> Squash<P> {
+        Squash {
+            phan: PhantomData,
+        }
+    }
 }
 
 /// Canonical proof term for type equality
-struct Refl<A>;
+struct Refl<A> {
+    phan: PhantomData<A>,
+}
+impl<A> Refl<A> {
+    fn new() -> Refl<A> {
+        Refl {
+            phan: PhantomData,
+        }
+    }
+}
 
 /// The `Term` trait classifies proof terms for type equality
-trait IdTerm<A, B> {}
-impl<A> IdTerm<A, A> for Refl<A> {}
+trait IdTerm<A, B>: PhantomFn<(Self, A, B)> {
+}
+impl<A> IdTerm<A, A> for Refl<A> {
+}
 
 /// Evidence of type equality where the proof term is existentially quantified
 pub struct Id<A, B>(Box<IdTerm<A, B> + 'static>);
 
-impl<A> Id<A, A> {
+impl<A: 'static> Id<A, A> {
     /// Construct a proof that type `A` is equal to itself
     #[inline]
-    pub fn refl() -> Id<A, A> { Id(Box::new(Refl)) }
+    pub fn refl() -> Id<A, A> {
+        Id(Box::new(Refl::new()))
+    }
 }
 
 impl<A, B> Id<A, B> {
     /// Construct a `Squash` from a type equality proof.
     #[inline]
-    pub fn squash(&self) -> Squash<Id<A, B>> { Squash::new(self) }
+    pub fn squash(&self) -> Squash<Id<A, B>> {
+        Squash::new(self)
+    }
 }
 
 /// The `Eq` trait acts like a type equality predicate
@@ -58,14 +82,18 @@ pub trait Eq<A> {
     }
 }
 
-impl<A> Eq<A> for A {
+impl<A: 'static> Eq<A> for A {
     #[inline]
-    fn completeness(&self) -> Squash<Id<A, A>> { Id::refl().squash() }
+    fn completeness(&self) -> Squash<Id<A, A>> {
+        Id::refl().squash()
+    }
 }
 
 /// Bi-directional type-level equality constraint
-pub trait BiEq<A: Eq<B>, B: Eq<A>> {}
-impl<A: Eq<B>, B: Eq<A>, C> BiEq<A, B> for C {}
+pub trait BiEq<A: Eq<B>, B: Eq<A>>: PhantomFn<(Self, A, B)> {
+}
+impl<A: Eq<B>, B: Eq<A>, C> BiEq<A, B> for C {
+}
 
 #[cfg(test)]
 mod tests {

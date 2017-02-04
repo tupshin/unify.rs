@@ -1,7 +1,4 @@
-use std::marker::{
-    PhantomData,
-    PhantomFn,
-};
+use std::marker::PhantomData;
 
 /// Evidence of a proposition where the witness has been forgotten
 pub struct Squash<P: ?Sized> {
@@ -12,9 +9,7 @@ impl<P: ?Sized> Squash<P> {
     /// Construct a `Squash` given a reference to a witness
     #[inline]
     pub fn new<'a>(_: &'a P) -> Squash<P> {
-        Squash {
-            phan: PhantomData,
-        }
+        Squash { phan: PhantomData }
     }
 }
 
@@ -24,17 +19,13 @@ struct Refl<A> {
 }
 impl<A> Refl<A> {
     fn new() -> Refl<A> {
-        Refl {
-            phan: PhantomData,
-        }
+        Refl { phan: PhantomData }
     }
 }
 
 /// The `Term` trait classifies proof terms for type equality
-trait IdTerm<A, B>: PhantomFn<(Self, A, B)> {
-}
-impl<A> IdTerm<A, A> for Refl<A> {
-}
+trait IdTerm<A, B> {}
+impl<A> IdTerm<A, A> for Refl<A> {}
 
 /// Evidence of type equality where the proof term is existentially quantified
 pub struct Id<'a, A, B>(Box<IdTerm<A, B> + 'a>);
@@ -70,36 +61,36 @@ pub trait Eq<A> {
     /// Implication in the reverse direction would be something like
     /// soundness but that isn't very useful here.
     #[inline]
-    fn completeness<'a>(&self) -> Squash<Id<'a, Self, A>> where A: 'a;
+    fn completeness<'a>(&self) -> Squash<Id<'a, Self, A>> where A: 'a,Self:Sized;
 
     /// Given `X: Eq<Y>` and `x: X`, this method will safely coerce
     /// `x` to type `Y`. The safety comes from the fact that the only
     /// time the bound `X: Eq<Y>` holds is when `X` and `Y` are the
     /// same type (determined statically).
     #[inline]
-    fn coerce(self) -> A where Self: Sized {
-        * unsafe { ::std::mem::transmute::<_, Box<_>>(Box::new(self)) }
+    fn coerce(self) -> A
+        where Self: Sized
+    {
+        *unsafe { ::std::mem::transmute::<_, Box<_>>(Box::new(self)) }
     }
 }
 
 impl<A> Eq<A> for A {
     #[inline]
-    fn completeness<'a>(&self) -> Squash<Id<'a, A, A>> where A: 'a {
+    fn completeness<'a>(&self) -> Squash<Id<'a, A, A>>
+        where A: 'a
+    {
         Id::refl().squash()
     }
 }
 
 /// Bi-directional type-level equality constraint
-pub trait BiEq<A: Eq<B>, B: Eq<A>>: PhantomFn<(Self, A, B)> {
-}
-impl<A: Eq<B>, B: Eq<A>, C> BiEq<A, B> for C {
-}
+pub trait BiEq<A: Eq<B>, B: Eq<A>>{}
+impl<A: Eq<B>, B: Eq<A>, C> BiEq<A, B> for C {}
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        Eq,
-    };
+    use super::Eq;
 
     #[test]
     fn coerce() {
